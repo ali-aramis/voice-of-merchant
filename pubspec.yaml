@@ -1,0 +1,46 @@
+name: vom
+description: A multilingual complaint tracking application.
+
+publish_to: "none"
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_localizations:
+    sdk: flutter
+
+  provider: ^6.1.5+1
+  http: ^1.6.0
+  shared_preferences: ^2.5.3
+  intl: ^0.20.2
+  file_picker: ^10.3.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+
+  generate: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+
+  fonts:
+    - family: Ubuntu
+      fonts:
+        - asset: assets/fonts/Ubuntu-Regular.ttf
+          weight: 400
+
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/vom_icon.png"
