@@ -41,33 +41,36 @@ class LabeledDropdown<T> extends StatelessWidget {
     this.validator,
   });
 
+
   Future<void> _openDropdown(
-    BuildContext context,
-    FormFieldState<T> fieldState,
-  ) async {
-    if (items.isEmpty) {
-      return;
-    }
+      BuildContext context,
+      FormFieldState<T> fieldState,
+      ) async {
+    debugPrint('Dropdown tapped: $label');
+    debugPrint('Dropdown items count: ${items.length}');
+
+    if (!context.mounted) return;
+
+    final double screenHeight = MediaQuery.sizeOf(context).height;
 
     final selectedValue = await showModalBottomSheet<T>(
       context: context,
-      backgroundColor: Colors.white,
+      useRootNavigator: true,
       isScrollControlled: true,
       useSafeArea: true,
+      backgroundColor: Colors.white,
+      constraints: BoxConstraints(
+        maxHeight: screenHeight * 0.65,
+      ),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(18),
         ),
       ),
-      builder: (context) {
-        final screenHeight = MediaQuery.of(context).size.height;
-
-        return ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: screenHeight * 0.65,
-          ),
+      builder: (sheetContext) {
+        return SizedBox(
+          height: screenHeight * 0.55,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 12),
               Container(
@@ -78,11 +81,9 @@ class LabeledDropdown<T> extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 12),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
                     Expanded(
@@ -96,53 +97,40 @@ class LabeledDropdown<T> extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(
-                        Icons.close_rounded,
-                        color: Color(0xFF71809C),
-                      ),
+                      onPressed: () =>
+                          Navigator.of(sheetContext).pop(),
+                      icon: const Icon(Icons.close_rounded),
                     ),
                   ],
                 ),
               ),
-              const Divider(
-                height: 1,
-                color: Color(0xFFE4E8F0),
-              ),
-              Flexible(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
+              const Divider(height: 1),
+              Expanded(
+                child: items.isEmpty
+                    ? const Center(
+                  child: Text(
+                    'No options available. Please try again.',
+                    textAlign: TextAlign.center,
                   ),
-                  shrinkWrap: true,
+                )
+                    : ListView.builder(
                   itemCount: items.length,
-                  separatorBuilder: (_, __) {
-                    return const Divider(
-                      height: 1,
-                      color: Color(0xFFEFF2F7),
-                    );
-                  },
                   itemBuilder: (context, index) {
                     final item = items[index];
-
-                    final bool isSelected = item.value == value;
+                    final bool isSelected =
+                        item.value == fieldState.value;
 
                     return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 4,
-                      ),
                       title: item.child,
                       trailing: isSelected
                           ? const Icon(
-                              Icons.check_rounded,
-                              color: Color(0xFF1A2A5E),
-                            )
+                        Icons.check,
+                        color: Color(0xFF1A2A5E),
+                      )
                           : null,
                       onTap: () {
-                        Navigator.of(context).pop(item.value);
+                        Navigator.of(sheetContext)
+                            .pop(item.value);
                       },
                     );
                   },
@@ -154,10 +142,12 @@ class LabeledDropdown<T> extends StatelessWidget {
       },
     );
 
-    if (selectedValue != null) {
-      fieldState.didChange(selectedValue);
-      onChanged?.call(selectedValue);
-    }
+    if (!context.mounted || selectedValue == null) return;
+
+    fieldState.didChange(selectedValue);
+    onChanged?.call(selectedValue);
+
+    debugPrint('Dropdown selected: $selectedValue');
   }
 
   @override

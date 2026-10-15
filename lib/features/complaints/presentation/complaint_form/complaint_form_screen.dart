@@ -43,11 +43,12 @@ class _ComplaintFormView extends StatelessWidget {
       body: Column(
         children: [
           const HomeHeader(),
+          const StepIndicator(),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  const StepIndicator(),
+
                   const SizedBox(height: 30),
                   Padding(
                     padding: EdgeInsets.symmetric(

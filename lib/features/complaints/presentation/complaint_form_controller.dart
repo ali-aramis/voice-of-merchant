@@ -124,6 +124,14 @@ class ComplaintFormController extends ChangeNotifier {
 
   bool get isLast => _step == stepCount - 1;
   bool consentValidationAttempted = false;
+
+  bool isLoadingEntities = true;
+  bool isLoadingSubmissionTypes = true;
+  bool isLoadingPositions = true;
+
+  String? entitiesError;
+  String? submissionTypesError;
+  String? positionsError;
 // ============================================================
 // 10. CONTROLLER CONSTRUCTOR
 // ============================================================
@@ -141,27 +149,24 @@ class ComplaintFormController extends ChangeNotifier {
 // Gets entities from the backend API.
 
   Future<void> loadEntities() async {
+    isLoadingEntities = true;
+    entitiesError = null;
+    notifyListeners();
+
     try {
-// Call Entity API
-      entities = await _entityApiService.getEntities();
+      final result = await _entityApiService.getEntities();
 
-      debugPrint(
-        'Entities loaded: ${entities.length}',
-      );
+      entities = result;
 
-// Print entities for debugging
-      for (final entity in entities) {
-        debugPrint(
-          'Entity: id=${entity.id}, name=${entity.nameEn}',
-        );
-      }
-
-// Tell UI that new data has arrived
+      debugPrint('Entities loaded: ${entities.length}');
+      debugPrint('Entities data: $entities');
+    } catch (e, stackTrace) {
+      entitiesError = e.toString();
+      debugPrint('Failed to load entities: $e');
+      debugPrintStack(stackTrace: stackTrace);
+    } finally {
+      isLoadingEntities = false;
       notifyListeners();
-    } catch (e) {
-      debugPrint(
-        'Failed to load entities: $e',
-      );
     }
   }
 
@@ -311,8 +316,6 @@ class ComplaintFormController extends ChangeNotifier {
 // ============================================================
 // 15. SUBMIT FORM
 // ============================================================
-// Currently this is still a mock submission.
-// Later we can replace this with a real POST API.
   Future<String?> submit() async {
     _isSubmitting = true;
 
